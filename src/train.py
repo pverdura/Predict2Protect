@@ -10,7 +10,7 @@ import params
 
 def __main__():
     # Read and process the data
-    df = pd.read_csv(params.path+"/"+params.file, sep=",")
+    df = pd.read_csv(params.path+"/"+params.train_file, sep=",")
 
     ids = ''
     for i in df:
@@ -23,7 +23,7 @@ def __main__():
     reg, cols, loss = model.train(X, y)
 
     # We store the trained model in <path_model+name>
-    name = params.file[:-4]
+    name = params.train_file[:-4]
 
     initial_type = [('input', FloatTensorType([None, X.shape[1]]))]
 
