@@ -8,7 +8,7 @@ import params
 
 def __main__():
     # Read and process the data
-    df = pd.read_csv(path+"/"+file, sep=",")
+    df = pd.read_csv(params.path+"/"+params.file, sep=",")
 
     ids = ''
     for i in df:
@@ -22,7 +22,7 @@ def __main__():
     reg, cols, loss = model.train(X, y)
 
     # We store the trained model
-    name = file[:-4]
+    name = params.file[:-4]
     print(name)
     onx = to_onnx(reg, X[:1])
     with open(path+"/.models/"+name, "wb") as f:
