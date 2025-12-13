@@ -2,7 +2,7 @@
 ## BitsXLaMarató 2025
 ---
 ### Contributors
-Alfonso Martinez
-Oriol Ventura
-Pol Verdura
-Max Villalba
+- Alfonso Martinez
+- Oriol Ventura
+- Pol Verdura
+- Max Villalba
