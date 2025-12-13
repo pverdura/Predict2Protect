@@ -20,13 +20,13 @@ def __main__():
     
     # We train the model with the data
     reg, cols, loss = model.train(X, y)
-
+'''
     # We store the trained model
     name = params.file[:-4]
     print(name)
     onx = to_onnx(reg, X[:1])
     with open(path+"/.models/"+name, "wb") as f:
-        f.write(onx.SerializeToString())
+        f.write(onx.SerializeToString())'''
 
 
 
