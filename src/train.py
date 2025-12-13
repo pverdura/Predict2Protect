@@ -3,11 +3,10 @@ from sklearn.ensemble import HistGradientBoostingClassifier # For training and m
 from skl2onnx import to_onnx                                # For storing the data
 
 import model
+import params
 
 
 def __main__():
-    path = "../data"
-    file = "data.csv"
     # Read and process the data
     df = pd.read_csv(path+"/"+file, sep=",")
 
