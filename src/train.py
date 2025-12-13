@@ -1,8 +1,6 @@
 import pandas as pd                                         # For managing data
 from sklearn.ensemble import HistGradientBoostingClassifier # For training and managing the model
-from skl2onnx import to_onnx                                # For storing the data
-from skl2onnx import convert_sklearn
-from skl2onnx.common.data_types import FloatTensorType
+import pickle                                               #  For storing the data
 
 import model
 import params
@@ -23,15 +21,9 @@ def __main__():
     reg, cols, loss = model.train(X, y)
 
     # We store the trained model in <path_model+name>
-    name = params.train_file[:-4]
+    filename = params.path_model+params.train_file[:-4]+".sav"
 
-    initial_type = [('input', FloatTensorType([None, X.shape[1]]))]
-
-    onx = convert_sklearn(reg, initial_types=initial_type)
-
-    with open(params.path_model+name+".onnx", "wb") as f:
-        f.write(onx.SerializeToString())
-
+    pickle.dump(reg, open(filename, 'wb'))
 
 
 
