@@ -4,7 +4,7 @@ import glob
 
 # --- CONFIGURACIÓ ---
 DIR_RESULTS = "results"
-OUTPUT_FILE = "TAULA_GLOBAL_RESULTATS.tsv"
+OUTPUT_FILE = "TAULA_GLOBAL_RESULTATS.csv"
 
 def generar_taula_global():
     print(f"--- Escanejant directoris dins de '{DIR_RESULTS}' ---")
@@ -86,7 +86,7 @@ def generar_taula_global():
     gens_ordenats = sorted(list(tots_els_gens)) # Ordenem els gens alfabèticament
 
     with open(OUTPUT_FILE, 'w') as f_out:
-        writer = csv.writer(f_out, delimiter='\t')
+        writer = csv.writer(f_out, delimiter=';')
         
         # Escrivim la capçalera: MOSTRA + Tots els gens trobats
         capcalera = ["MOSTRA"] + gens_ordenats
