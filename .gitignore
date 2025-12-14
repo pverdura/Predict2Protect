@@ -29,3 +29,4 @@ uniform_original.py
 
 # System
 .DS_Store
+.~lock*
