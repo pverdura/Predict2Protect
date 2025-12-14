@@ -30,3 +30,5 @@ uniform_original.py
 # System
 .DS_Store
 .~lock*
+*.ods
+results_malalts*

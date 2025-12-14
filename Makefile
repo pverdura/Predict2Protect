@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS= -O3 -g #-pg #-Wall #-O3
-LINKPATH= -I./samtools-0.1.19 -L./samtools-0.1.19 -I./htslib-1.15.1/ -L./htslib-1.15.1/
+LINKPATH= -I./samtools-0.1.19 -L./samtools-0.1.19 -I./htslib-1.15.1/ -L./htslib-1.15.1/ -I./zlib -L./zlib
 LINKFLAGS = -lpthread -lz 
 DEBUG=
 OBJECTS = 
@@ -22,15 +22,18 @@ ifneq ($(asan),)
 endif
 
 
-all: fastq-extractor bam-extractor genotyper analyzer
+all: zlib/libz.a fastq-extractor bam-extractor genotyper analyzer
 
-genotyper: Genotyper.o
+zlib/libz.a:
+	cd zlib && ./configure && $(MAKE)
+
+genotyper: Genotyper.o zlib/libz.a
 	$(CXX) -o $@ $(LINKPATH) $(CXXFLAGS) $< $(LINKFLAGS)
 
-analyzer: Analyzer.o
+analyzer: Analyzer.o zlib/libz.a
 	$(CXX) -o $@ $(LINKPATH) $(CXXFLAGS) $< $(LINKFLAGS)
 
-bam-extractor: BamExtractor.o
+bam-extractor: BamExtractor.o zlib/libz.a
 	if [ $(htslib) -eq 1 ] ; then \
 		if [ ! -f ./htslib-1.15.1/libhts.a ] ; \
 			then \
@@ -42,12 +45,12 @@ bam-extractor: BamExtractor.o
 	else \
 		if [ ! -f ./samtools-0.1.19/libbam.a ] ; \
 	        then \
-		                cd samtools-0.1.19 ; make ;\
+		                cd samtools-0.1.19 ; $(MAKE) INCLUDES="-I. -I../zlib" LIBPATH="-L../zlib" ;\
 		fi  \
 	fi ; 
 	$(CXX) -o $@ $(LINKPATH) $(CXXFLAGS) $< $(LINKFLAGS) $(BAMFLAGS)
 
-fastq-extractor: FastqExtractor.o
+fastq-extractor: FastqExtractor.o zlib/libz.a
 	$(CXX) -o $@ $(LINKPATH) $(CXXFLAGS) $< $(LINKFLAGS)
 
 
