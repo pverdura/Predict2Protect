@@ -1,1 +1,31 @@
+# User Data & Results
+fastq/
+results/
+results_originals/
+entorn/
+*.xlsx
+*.tsv
+Fet
+
+# Compiled Binaries & Objects
+*.o
+analyzer
+bam-extractor
+fastq-extractor
+genotyper
+
+# User Scripts to Exclude
+adaptar_format.py
+analisis_conflictes.py
+analisis_freq.py
+comparador.py
+crear_taula_estudi2.py
+generar_taula_neta.py
+generar_taula_neta2.py
+generar_taula_neta_F1.py
+inspector_abundancies.py
+tsv2excel.py
+uniform_original.py
+
+# System
 .DS_Store
