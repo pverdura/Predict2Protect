@@ -1,6 +1,6 @@
 import pandas as pd                                         # For managing data
 from sklearn.ensemble import HistGradientBoostingClassifier # For training and managing the model
-import pickle                                               #  For storing the data
+import pickle                                               # For storing the data
 
 import params
 
@@ -13,6 +13,7 @@ def __main__():
     filename = params.path_model+params.valid_file[:-4]+".sav"
     
     model = pickle.load(open(filename, 'rb'))
+
 
 
 __main__()

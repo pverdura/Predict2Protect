@@ -5,18 +5,28 @@ import pickle                                               #  For storing the d
 import model
 import params
 
+def join_df(df_allele, df_person):
+    # We change the data frame index to ID
+    df_allele = df_allele.rename(columns={df_allele.columns[0]: "ID"})
+    df_allele = df_allele.set_index('ID')
+    df_person = df_person.set_index('ID')
+
+    df_allele = pd.merge(df_allele, df_person, how='left', on="ID")
+
+    y = df_allele[["RM profunda (BCR/ABL < 001%)"]]
+    X = df_allele.drop(columns=["RM profunda (BCR/ABL < 001%)"])
+
+    return X, y
+
 
 def __main__():
     # Read and process the data
-    df = pd.read_csv(params.path+"/"+params.train_file, sep=",")
+    df_allele = pd.read_csv(params.path+"/"+params.train_allele, sep=";")
+    df_person = pd.read_csv(params.path+"/"+params.train_patient, sep=";")
 
-    ids = ''
-    for i in df:
-        ids = i
+    X, y = join_df(df_allele, df_person)
 
-    y = df[ids]
-    X = df.drop(columns=[ids])
-    
+if 0:
     # We train the model with the data
     reg, cols, loss = model.train(X, y)
 
