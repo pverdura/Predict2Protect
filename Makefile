@@ -1,14 +1,12 @@
 all: main
 
-main: pyenv folders
+main: configure #folders
 
-pyenv:
+configure:
+	@python3 config.py
+
+aux:
 	python3 -m venv .venv
 	. .venv/bin/activate
 	pip install -r requirements.txt
-
-
-folders:
-	mkdir data
-	mkdir data/.model
 
