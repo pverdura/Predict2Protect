@@ -1,12 +1,14 @@
-all: main
+all: help
 
-main: configure #folders
+help:
+	@echo "make options:"
+	@echo "  help - Shows this list"
+	@echo "  config - Configures the working environment"
+	@echo "  help - Trains the model"
 
-configure:
+config:
 	@python3 config.py
 
-aux:
-	python3 -m venv .venv
-	. .venv/bin/activate
-	pip install -r requirements.txt
+train:
+	@python3 src/train.py
 
