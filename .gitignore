@@ -4,3 +4,4 @@ src/__pycache__
 *.csv
 *.onnx
 test
+model

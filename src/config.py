@@ -3,6 +3,7 @@
 
 import os
 
+# Functions for coloring text
 class font:
     GREEN = '\033[92m'  # For printing green text
     RED = '\033[91m'    # For printing red text
@@ -18,8 +19,23 @@ def red(string):
 def green(string):
     return f"{font.GREEN}" + string + f"{font.END}"
 
+
+# Functions that manage the inputs
 def agree(confirm):
     return len(confirm) == 0 or confirm == 'y' or confirm == 'Y'
+
+def manage_directory(directory):
+    if not os.path.isdir(directory):
+        confirm = input(red("Warning: The directory " + directory + " does not exist!\n") +
+                    "Do you want to create the directory '" + directory + "'? [Y/n] ")
+        if agree(confirm):
+            os.makedirs(directory)
+            print(green("The directory " + directory + " was created successfully!\n"))
+
+def standardize_path(_path):
+    if _path[-1] == '/':
+        _path = _path[:-1]
+    return _path
 
 
 ### PATH INPUT ###
@@ -41,12 +57,7 @@ while not introduced:
         introduced = True
 
 # We check if the directory exists
-if not os.path.isdir(path):
-    confirm = input(red("Warning: The folder " + path + " does not exist!\n") +
-                    "Do you want to create the directory '" + path + "'? [Y/n] ")
-    if agree(confirm):
-        os.mkdir(path)
-        print(green("Directory " + path + " created successfully"))
+manage_directory(path)
 
 
 
@@ -81,13 +92,36 @@ while not introduced:
     if len(patient_data) == 0:
         # If empty we ask if the default option is wanted
         confirm = input(red("Warning: No file introduced!\n") +
-                        "Do you want the default option: 'patient.csv'? [Y/n] ")
+                        "Do you want the default option: 'patients.csv'? [Y/n] ")
         if agree(confirm):
-            patient_data = 'patient.csv'
+            patient_data = 'patients.csv'
             introduced = True
     else:
         introduced = True
         
+
+
+### MODEL DIRECTORY ###
+
+introduced = False
+
+while not introduced:
+    model_dir = input("Type the folder that will contain the trained model:\n")
+    
+    # We check if the user typed any path
+    if len(model_dir) == 0:
+        # If empty we ask if the default option is wanted
+        confirm = input(red("Warning: No path introduced!\n") + 
+                        "Do you want the default path: './model'? [Y/n] ")
+        if agree(confirm):
+            model_dir = './model'
+            introduced = True
+    else:
+        introduced = True
+
+# We check if the directory exists
+manage_directory(model_dir)
+
 
 
 ### CSV SEPARATOR ###
@@ -102,9 +136,9 @@ while not introduced:
 
         # If empty we ask if the default option is wanted
         confirm = input(red("Warning: No separator introduced!\n") +
-                        "Do you want the separator ';'? [Y/n] ")
+                        "Do you want the separator ','? [Y/n] ")
         if agree(confirm):
-            csv_sep = ';'
+            csv_sep = ','
             introduced = True
     else:
         introduced = True
@@ -114,16 +148,12 @@ while not introduced:
 ### WE WRITE THE DATA IN './src/params.py' ###
 
 # We standardize the paths
-if path[-1] == '/':
-    path = path[:-1]
-
-# If the path is not an absolute path (starts with '/' or '~')
-# we will edit the path so code inside './src' can read it
-if path[0] != '/' and path[0] != '~':
-    path = "../" + path
+path = standardize_path(path)
+model_dir = standardize_path(model_dir)
 
 with open("./src/params.py", "w") as params:
-    params.write("path         = \"" + path +
+    params.write("# src/params.py - Environment parameters\n\n" +
+                 "path         = \"" + path +
                  f"\"\t# Relative path of the file\n" +
                  "allele_data  = \"" + allele_data +
                  f"\"\t# Name of the file that contains the allele data\n" +
@@ -131,10 +161,10 @@ with open("./src/params.py", "w") as params:
                  f"\"\t# Name of the file that contains the patient data\n" +
                  "valid_file   = \"" + allele_data +
                  f"\"\t# Name of the file used to validate the model\n" +
-                 "model_dir    = \"" + "../model" +
+                 "model_dir    = \"" + model_dir +
                  f"\"\t# Folder for storing the trained models\n" +
                  "csv_sep      = \"" + csv_sep +
                  f"\"\t# Character that separates the CSV elements\n"
-                 )
+                )
 
 print(green("All parameters are written in 'src/params.py'"))

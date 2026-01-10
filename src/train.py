@@ -3,6 +3,7 @@
 import pandas as pd                                         # For managing data
 from sklearn.ensemble import HistGradientBoostingClassifier # For training and managing the model
 import pickle                                               # For storing the data
+import os                                                   # For managing storage
 
 import model    # Trains the model
 import params   # General metadata
@@ -32,11 +33,10 @@ def join_df(df_allele, df_patient):
 ### MAIN FUNCTION ###
 def __main__():
     # Read and process the data
-    df_allele = pd.read_csv(params.path+"/"+params.train_allele, sep=params.csv_sep)
-    df_patient = pd.read_csv(params.path+"/"+params.train_patient, sep=params.csv_sep)
+    df_allele = pd.read_csv(params.path+"/"+params.allele_data, sep=params.csv_sep)
+    df_patient = pd.read_csv(params.path+"/"+params.patient_data, sep=params.csv_sep)
 
     X, y = join_df(df_allele, df_patient)
-
 
 if 0:
     # TODO:
@@ -53,8 +53,17 @@ if 0:
     df_pred.to_csv("prediccions.csv", index=False)
     print("CSV de prediccions generat a: prediccions.csv")
 
-    # We store the trained model in <path_model+name>
-    filename = params.path_model+params.train_file[:-4]+".sav"
+    # We store the trained model
+    filename = params.model_dir + '/' + "model"
+    name_check = filename
+    counter = 1
+
+    # We try not to overwrite previous models so we want to compare them
+    while os.path.isfile(name_check + ".sav"):
+        name_check = filename + "-" + str(counter)
+        counter += 1
+
+    filename = name_check + ".sav"
 
     pickle.dump(reg, open(filename, 'wb'))
 

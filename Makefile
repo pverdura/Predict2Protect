@@ -2,12 +2,12 @@ all: help
 
 help:
 	@echo "make options:"
-	@echo "  help - Shows this list"
+	@echo "  help   - Shows this list"
 	@echo "  config - Configures the working environment"
-	@echo "  help - Trains the model"
+	@echo "  train  - Trains the model"
 
 config:
-	@python3 config.py
+	@python3 src/config.py
 
 train:
 	@python3 src/train.py
