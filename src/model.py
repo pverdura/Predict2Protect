@@ -1,7 +1,9 @@
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.model_selection import KFold
+# src/model.py - Base code of the model
+
+import pandas as pd                                         # For managing data
+import numpy as np                                          # For basic functions
+from sklearn.ensemble import HistGradientBoostingClassifier # For training and managing the model
+from sklearn.model_selection import KFold                   
 from sklearn.metrics import log_loss
 
 def preprocess_one_hot(X, columns_trained=None):
