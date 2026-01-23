@@ -1,8 +1,13 @@
 # src/params.py - Environment parameters
 
-path         = "./data"	# Relative path of the file
-allele_data  = "allele.csv"	# Name of the file that contains the allele data
-patient_data = "patients.csv"	# Name of the file that contains the patient data
-valid_file   = "allele.csv"	# Name of the file used to validate the model
-model_dir    = "./model"	# Folder for storing the trained models
-csv_sep      = ","	# Character that separates the CSV elements
+# DATA_DIR <----- Relative or absolute path of directory that contains the files
+# ALLELE_DATA <-- Name of the file that contains the KIR data
+# PATIENT_DATA <- Name of the file that contains the allele data
+# MODEL_DIR <---- Name of the folder used to store the trained models
+# CSV_SEP <------ Character that separates the CSV elements
+
+DATA_DIR     = "./data"
+ALLELE_DATA  = "allele.csv"
+PATIENT_DATA = "patients.csv"
+MODEL_DIR    = "./model"
+CSV_SEP      = ","

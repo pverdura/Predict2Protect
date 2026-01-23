@@ -1,170 +1,140 @@
 # config.py - Python script to configure the environment. Modifies the file 
 #             src/params.py and creates the folders if they don't exist
 
-import os
-
-# Functions for coloring text
-class font:
-    GREEN = '\033[92m'  # For printing green text
-    RED = '\033[91m'    # For printing red text
-    BOLD = '\033[1m'    # For prining bold text
-    END = '\033[0m'     # For printing default text
-
-def bold(string):
-    return f"{font.BOLD}" + string + f"{font.END}"
-
-def red(string):
-    return f"{font.RED}" + string + f"{font.END}"
-
-def green(string):
-    return f"{font.GREEN}" + string + f"{font.END}"
+__PATH__ = "path"
+__FILE__ = "file"
+__CHAR__ = "character"
 
 
-# Functions that manage the inputs
-def agree(confirm):
-    return len(confirm) == 0 or confirm == 'y' or confirm == 'Y'
+'''
+' Pre: A string that contains a line of a file
+'  - line: A non empty string
+'
+' Post: Returns an array defining the parameter of the line
+'  - param_id: ID of the parameter
+'  - param_type: Type of parameter
+'  - param: Content of that parameter
+'''
+def get_param(line):
+    param_name = line.split(' ')[0]
+    param_id = param_name.split('_')[0].lower()
+    param = line.split('"')[1]
 
-def manage_directory(directory):
-    if not os.path.isdir(directory):
-        confirm = input(red("Warning: The directory " + directory + " does not exist!\n") +
-                    "Do you want to create the directory '" + directory + "'? [Y/n] ")
-        if agree(confirm):
-            os.makedirs(directory)
-            print(green("The directory " + directory + " was created successfully!\n"))
-
-def standardize_path(_path):
-    if _path[-1] == '/':
-        _path = _path[:-1]
-    return _path
-
-
-### PATH INPUT ###
-
-introduced = False
-
-while not introduced:
-    path = input(bold("PATH") + " of the folder that contains the data:\n")
+    if (param_name == "DATA_DIR"): param_type = __PATH__
+    elif (param_name == "ALLELE_DATA"): param_type = __FILE__
+    elif (param_name == "PATIENT_DATA"): param_type = __FILE__
+    elif (param_name == "MODEL_DIR"): param_type = __PATH__
+    elif (param_name == "CSV_SEP"): param_type = __CHAR__
+    else:
+        # We stop the program if we detect an unidentified
+        # parameter in the file 
+        print("Error: Unidintified parameter " + param_name)
+        exit()
     
-    # We check if the user typed any path
-    if len(path) == 0:
-        # If empty we ask if the default option is wanted
-        confirm = input(red("Warning: No path introduced!\n") + 
-                        "Do you want the default path: './data'? [Y/n] ")
-        if agree(confirm):
-            path = './data'
-            introduced = True
-    else:
-        introduced = True
-
-# We check if the directory exists
-manage_directory(path)
+    return param_id, param_type, param
 
 
-
-### ALLELE INPUT ###
-
-introduced = False
-
-while not introduced: 
-    allele_data = input(f"Name of of the file with the " + bold("ALLELE DATA") + ":\n")
-
-    # We check if the user typed any input
-    if len(allele_data) == 0:
-        # If empty we ask if the default option is wanted
-        confirm = input(red("Warning: No file introduced!\n") + 
-                            "Do you want the default option: 'allele.csv'? [Y/n] ")
-        if agree(confirm):
-            allele_data = 'allele.csv'
-            introduced = True
-    else:
-        introduced = True
+'''
+' Pre: A line from a file
+'  - 'line': A string
+'
+' Post: Returns a boolean that informs if the line contains a parameter
+'''
+def is_param(line):
+    return len(line) > 0 and line[0] != '#'
 
 
+'''
+' Pre: The answer from the user
+'  - 'response': A string
+'
+' Post: Checks if the user agrees with the question
+'''
+def agree(response):
+    return len(response) == 0 or response == 'y' or response == 'Y'
 
-### PATIENT INPUT ###
 
-introduced = False
+'''
+' Pre: A path
+'  - path: A string
+'
+' Post: Returns the path standardized for the application
+'''
+def standardize_path(path):
+    if (path[-1] == '/'):
+        path = path[:-1]
+    return path
 
-while not introduced:
-    patient_data = input(f"\nName of the file with the " + bold("PATIENT DATA") + ":\n")
+
+'''
+' Main function of the program
+'''
+def __main__():
+    # We read the contents of the file with the parameters
+    with open('./src/params.py') as file:
+        lines = [line.rstrip() for line in file]
     
-    # We check if the user typed any input
-    if len(patient_data) == 0:
-        # If empty we ask if the default option is wanted
-        confirm = input(red("Warning: No file introduced!\n") +
-                        "Do you want the default option: 'patients.csv'? [Y/n] ")
-        if agree(confirm):
-            patient_data = 'patients.csv'
-            introduced = True
-    else:
-        introduced = True
+    # We create an empty buffer where we will store the
+    # new content of the file
+    file_content = ""
+
+    # For each line we check if it contains a parameter and
+    # ask if the user wants to change it
+    for line in lines:
+        # We add a new line to the file
+        if file_content != "":
+            file_content += "\n"
+
+        if is_param(line):
+            param_id, param_type, param = get_param(line)
+
+            # We ask if the user wants to modify the parameter
+            if (param_type == __PATH__):
+                print("The name of the path that contains the "
+                      + param_id + " is '" + param + "'")
+            elif (param_type == __FILE__):
+                print("The name of the file that contains the "
+                      + param_id + " data is '" + param + "'")
+            elif (param_type == __CHAR__):
+                print("The separator used in the "
+                      + param_id + " files is '" + param + "'")
+            else:
+                print("Error: Undefined parameter")
+                exit()
         
+            # We ask if the user wants to change the parameter
+            response = input("Do you want to change it? [Y/n] ")
 
+            # We check if the user agrees and update the file
+            if agree(response):
+                response = ""
+                
+                # We keep requesting the response until the user types it
+                while response == "":
+                    response = input("Enter the new " + param_type + ": ")
 
-### MODEL DIRECTORY ###
+                # If the parameter is a directory we format the path
+                # (if needed) for the application
+                if (param_type == __PATH__):
+                    response = standardize_path(response)
 
-introduced = False
+                # We update the line
+                file_content += (line.split('=')[0] + '= "' + response + '"')
 
-while not introduced:
-    model_dir = input("Type the folder that will contain the trained model:\n")
+            # Otherwise we keep it as it was
+            else:
+                file_content += line
+
+        # If the line does not contain a parameter we keep it as it was
+        else:
+            file_content += line
+
     
-    # We check if the user typed any path
-    if len(model_dir) == 0:
-        # If empty we ask if the default option is wanted
-        confirm = input(red("Warning: No path introduced!\n") + 
-                        "Do you want the default path: './model'? [Y/n] ")
-        if agree(confirm):
-            model_dir = './model'
-            introduced = True
-    else:
-        introduced = True
+    # We update the content of the file
+    with open("./src/params.py", "w") as params:
+        params.write(file_content)
 
-# We check if the directory exists
-manage_directory(model_dir)
+    print("\nAll parameters were updated successfully!")
 
 
-
-### CSV SEPARATOR ###
-
-introduced = False
-
-while not introduced:
-    csv_sep = input("Type of csv separator:\n")
-
-    # We check if the user typed any input
-    if len(csv_sep) == 0:
-
-        # If empty we ask if the default option is wanted
-        confirm = input(red("Warning: No separator introduced!\n") +
-                        "Do you want the separator ','? [Y/n] ")
-        if agree(confirm):
-            csv_sep = ','
-            introduced = True
-    else:
-        introduced = True
-
-
-
-### WE WRITE THE DATA IN './src/params.py' ###
-
-# We standardize the paths
-path = standardize_path(path)
-model_dir = standardize_path(model_dir)
-
-with open("./src/params.py", "w") as params:
-    params.write("# src/params.py - Environment parameters\n\n" +
-                 "path         = \"" + path +
-                 f"\"\t# Relative path of the file\n" +
-                 "allele_data  = \"" + allele_data +
-                 f"\"\t# Name of the file that contains the allele data\n" +
-                 "patient_data = \"" + patient_data +
-                 f"\"\t# Name of the file that contains the patient data\n" +
-                 "valid_file   = \"" + allele_data +
-                 f"\"\t# Name of the file used to validate the model\n" +
-                 "model_dir    = \"" + model_dir +
-                 f"\"\t# Folder for storing the trained models\n" +
-                 "csv_sep      = \"" + csv_sep +
-                 f"\"\t# Character that separates the CSV elements\n"
-                )
-
-print(green("All parameters are written in 'src/params.py'"))
+__main__()
