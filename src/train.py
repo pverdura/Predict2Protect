@@ -1,7 +1,6 @@
 # src/train.py - Trains and stores the medication model
 
 import pandas as pd                                         # For managing data
-import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier # For training and managing the model
 import pickle                                               # For storing the data
 import os                                                   # For managing storage
@@ -11,17 +10,33 @@ import params   # General metadata
 
 
 def get_days(start_day, end_day):
-    # We remove the patents that miss data
-    null_start = pd.isnull(start_day)
-    null_end = pd.isnull(end_day)
+    # We remove the patients that miss data
+    days = pd.merge(start_day.dropna(),
+                    end_day.dropna(),
+                    how = 'inner', on = 'ID')
+    
+    # We rename the columns
+    cols = days.columns
+    days = days.rename(columns={cols[0]: "start", cols[1]: "end"})
 
-    #null_rows = 
-    print(null_start, null_end)
+    # We calculate how many samples we removed
+    num_removed = start_day.shape[0] - days.shape[0]
 
-    start_day = pd.to_datetime(start_day, format="%d/%m/%Y")
-    end_day = pd.to_datetime(end_day, format="%d/%m/%Y")
+    # We convert the data type from string to datetime
+    start = pd.to_datetime(days['start'], format="%d/%m/%Y")
+    end = pd.to_datetime(days['end'], format="%d/%m/%Y")
 
-    return start_day
+
+    # We calculate the time interval
+    days = end.subtract(start)
+
+    # We restore the patients that contain missing data
+    days = pd.concat([start_day, days], axis=1).iloc[:,1].dt.days
+
+    # We assign a negative number to the patients that lack data
+    days = days.fillna(-1)
+
+    return days
 
 
 ### INTERSECTS BOTH DATASETS ###
@@ -30,16 +45,15 @@ def join_df(df_allele, df_patient):
     df_allele  = df_allele.rename(columns={df_allele.columns[0]: "ID"})
     df_allele  = df_allele.set_index('ID')
 
-    # We obtain how many days the patients spent with their first stage treatment
     df_patient = df_patient.set_index('ID') 
 
-    #df_patient['days_treatment'] = get_days(df_patient['INICIO ITC 1Âª LINEA'],
-    #                                        df_patient['FIN ITC 1Âª LINEA'])
+    # We calculate how many days the patients spent with their first stage treatment
+    df_patient['days_treatment'] = get_days(df_patient['INICIO ITC 1Âª LINEA'],
+                                            df_patient['FIN ITC 1Âª LINEA'])
 
     # We are interested in 'RM profunda' (treatment) and 
     # the duration of the treatment
     df_patient = df_patient.loc[:, ['RM profunda (BCR/ABL < 001%)']]
-    #                                'days_treatment']]
     
     # We intersect the databases
     df_allele = pd.merge(df_allele, df_patient, how='left', on="ID")
@@ -72,8 +86,8 @@ def new_savename(filename, extension):
 ### MAIN FUNCTION ###
 def __main__():
     # Read and process the data
-    df_allele = pd.read_csv(params.path+"/"+params.allele_data, sep=params.csv_sep)
-    df_patient = pd.read_csv(params.path+"/"+params.patient_data, sep=params.csv_sep)
+    df_allele = pd.read_csv(params.DATA_DIR+"/"+params.ALLELE_DATA, sep=params.CSV_SEP)
+    df_patient = pd.read_csv(params.DATA_DIR+"/"+params.PATIENT_DATA, sep=params.CSV_SEP)
     
     X, y = join_df(df_allele, df_patient)
 
