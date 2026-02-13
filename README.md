@@ -31,6 +31,7 @@ make config
 
 List of tasks to do in this project:
 
+- [ ] **Improve the interoperability of data between T1K and the model code**
 - [ ] Update model code
 - [ ] Improve the genereated charts
 - [ ] Create validation model the code
