@@ -134,7 +134,7 @@ def __main__():
     with open("./src/params.py", "w") as params:
         params.write(file_content)
 
-    print("\nAll parameters were updated successfully!")
+    print("\n\033[92mAll parameters were updated successfully!\033[0m")
 
 
 __main__()

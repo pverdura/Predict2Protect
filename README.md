@@ -27,6 +27,19 @@ make config
 
 ---
 
+### To Do List
+
+List of tasks to do in this project:
+
+- [ ] Update model code
+- [ ] Improve the genereated charts
+- [ ] Create validation model the code
+- [ ] Integrate medication days in the model
+- [ ] Check and test all functionalities
+- [ ] Create a functional interface
+
+---
+
 ### Contributors
 - [Alfonso Martinez](https://github.com/MC-Alfonso)
 - [Oriol Ventura](https://github.com/Uri-0405)

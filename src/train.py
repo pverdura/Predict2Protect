@@ -9,6 +9,7 @@ import model    # Trains the model
 import params   # General metadata
 
 
+
 '''
 ' Pre:
 '  - start_day: for each patient the days that their treatment started
@@ -109,6 +110,7 @@ def new_savename(filename, extension):
     return new_name + extension
 
 
+
 '''
 ' Main function of the program
 '''
@@ -125,7 +127,10 @@ def __main__():
     
     X, y = join_df(df_allele, df_patient)
 
-    # TODO:
+    print(X)
+    print(y)
+    exit()
+    
     # We train the model with the data
     reg, cols, loss = model.train(X, y)
 
@@ -139,7 +144,7 @@ def __main__():
     # We store the predicted data
     filename = new_savename(params.MODEL_DIR + "/" + "predictions", ".csv")
     df_pred.to_csv(filename, index=True)
-    print("Predictions generated at: " + params.MODEL_DIR + "predictions.csv")
+    print("\n\033[92m" + "Predictions generated at: " + filename + "\033[0m")
 
     # We store the trained model
     filename = new_savename(params.MODEL_DIR + "/model", ".sav")
