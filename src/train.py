@@ -9,23 +9,31 @@ import model    # Trains the model
 import params   # General metadata
 
 
+'''
+' Pre:
+'  - start_day: for each patient the days that their treatment started
+'       (values can be empty).
+'  - end_day: for each patient the days that their treatment ended
+'       (values can be empty).
+'
+' Post: Returns the ammount of days each patient spent with the treatment
+'  - days[<patient>]: is a positive number if start_day[<patient>] and
+'       end_day[<patient>] exist, otherwise '-1'.
+'''
 def get_days(start_day, end_day):
-    # We remove the patients that miss data
+    # We remove the patients that don't have a date
     days = pd.merge(start_day.dropna(),
                     end_day.dropna(),
                     how = 'inner', on = 'ID')
     
-    # We rename the columns
+    # We rename the columns that contain the start and end of medication
     cols = days.columns
     days = days.rename(columns={cols[0]: "start", cols[1]: "end"})
 
-    # We calculate how many samples we removed
-    num_removed = start_day.shape[0] - days.shape[0]
-
     # We convert the data type from string to datetime
+    # (to manage time intervals)
     start = pd.to_datetime(days['start'], format="%d/%m/%Y")
     end = pd.to_datetime(days['end'], format="%d/%m/%Y")
-
 
     # We calculate the time interval
     days = end.subtract(start)
@@ -39,7 +47,14 @@ def get_days(start_day, end_day):
     return days
 
 
-### INTERSECTS BOTH DATASETS ###
+
+'''
+' Pre:
+'  - df_allele: table that contains the kir-genes from the patients
+'  - df_patient: table that contains general data from the patients
+'
+' Post: Matches each patient in <df_patient> with their KIR-genes
+'''
 def join_df(df_allele, df_patient):
     # We change the data frame index to ID
     df_allele  = df_allele.rename(columns={df_allele.columns[0]: "ID"})
@@ -47,9 +62,15 @@ def join_df(df_allele, df_patient):
 
     df_patient = df_patient.set_index('ID') 
 
-    # We calculate how many days the patients spent with their first stage treatment
-    df_patient['days_treatment'] = get_days(df_patient['INICIO ITC 1Âª LINEA'],
-                                            df_patient['FIN ITC 1Âª LINEA'])
+    # We calculate how many days the patients spent with their 
+    # first stage treatment
+    df_patient['days_treatment'] = get_days(
+            df_patient['INICIO ITC 1Âª LINEA'],
+            df_patient['FIN ITC 1Âª LINEA']
+    )
+
+    # We remove patients without medication dates
+    df_patient = df_patient[df_patient['days_treatment'] != -1]
 
     # We are interested in 'RM profunda' (treatment) and 
     # the duration of the treatment
@@ -69,7 +90,13 @@ def join_df(df_allele, df_patient):
 
 
 
-### CREATES A NEW FILENAME TO NOT OVERWRITE PREVIOUS DATA ###
+'''
+' Pre: 
+'  - filename: name of a file (without extension)
+'  - extension: file type of filename
+'
+' Post: modifies the filename name to avoid overwriting the file
+'''
 def new_savename(filename, extension):
     new_name = filename
     counter = 1
@@ -82,12 +109,19 @@ def new_savename(filename, extension):
     return new_name + extension
 
 
-
-### MAIN FUNCTION ###
+'''
+' Main function of the program
+'''
 def __main__():
     # Read and process the data
-    df_allele = pd.read_csv(params.DATA_DIR+"/"+params.ALLELE_DATA, sep=params.CSV_SEP)
-    df_patient = pd.read_csv(params.DATA_DIR+"/"+params.PATIENT_DATA, sep=params.CSV_SEP)
+    df_allele = pd.read_csv(
+        params.DATA_DIR + "/" + params.ALLELE_DATA,
+        sep=params.CSV_SEP
+    )
+    df_patient = pd.read_csv(
+        params.DATA_DIR + "/" + params.PATIENT_DATA,
+        sep=params.CSV_SEP
+    )
     
     X, y = join_df(df_allele, df_patient)
 
@@ -103,12 +137,12 @@ def __main__():
     df_pred['pred_class'] = (y_prob >= 0.5).astype(int)
 
     # We store the predicted data
-    filename = new_savename(model_dir + "/" + "predictions", ".csv")
+    filename = new_savename(params.MODEL_DIR + "/" + "predictions", ".csv")
     df_pred.to_csv(filename, index=True)
-    print("Predictions generated at: " + model_dir + "predictions.csv")
+    print("Predictions generated at: " + params.MODEL_DIR + "predictions.csv")
 
     # We store the trained model
-    filename = new_savename(params.model_dir + '/' + "model", ".sav")
+    filename = new_savename(params.MODEL_DIR + "/model", ".sav")
 
     pickle.dump(reg, open(filename, 'wb'))
 
